@@ -1,8 +1,8 @@
 # Specific Correspondence Topic Model
 
-Code for the paper: 
+Code for the paper:  
 *"[Going Beyond Corr-LDA for Detecting Specific Comments on News & Blogs](http://dl.acm.org/citation.cfm?id=2556231)". In ACM international conference on Web Search and Data Mining (WSDM), 2014.*
-=====================================
+***
 
 This implementation contains the following 3 models:  
 
@@ -49,10 +49,10 @@ All words should be converted to integer vocabulary ids' starting from 0.
 
 #### Output
 Following are the four outputs from the model:
-- Topic distributions: The learned topics by the model. The last topic is always the _irrelevant topic_. So if the model is run with K topics, then K+1 topics are output. The last topic should be ignored for LDA model. File "_beta_".  
-- Comment topic distribution: Topic distribution (over K+1 topics) of each comment. File "*y_dist.txt* ".  
-- Article topic distribution: Overall topic distribution (over K topics) of each article. File "*z_dist.txt* ".  
-- Sentence selection probability: The probability of correspondence of a comment to each article sentence (see paper). File "*xi_prob.txt*".  
+- _Topic distributions_: The learned topics by the model. The last topic is always the _irrelevant topic_. So if the model is run with K topics, then K+1 topics are output. The last topic should be ignored for LDA model. File "_beta_".  
+- _Comment topic distribution_: Topic distribution (over K+1 topics) of each comment. File "*y_dist.txt* ".  
+- _Article topic distribution_: Overall topic distribution (over K topics) of each article. File "*z_dist.txt* ".  
+- _Sentence selection probability_: The probability of correspondence of a comment to each article sentence (see paper). File "*xi_prob.txt*".  
 
 The dot products of the article and comment topic distributions are used for the applications described in the paper.
 
