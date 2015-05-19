@@ -1,3 +1,8 @@
+---
+layout: page
+mathjax: true
+permalink: /sctm/
+---
 # Specific Correspondence Topic Model
 
 Code for the paper:  
