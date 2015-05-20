@@ -32,7 +32,7 @@ To print the topics use the python script provided:
 `python print_topics.py <beta> <vocab> <?topn>`  
 where  
 - _beta_ is the location of the output topic distribution file (named _beta_) from the _sctm_ code  
-- _vocab_ is the vocabulary file consisting of word mapping, each i-th line of this file contains the word i
+- _vocab_ is the vocabulary file consisting of word mapping where i-th line contains the word i
 - _topn_ (optional) number of top words to print per topic  
 
 There is a sample pre-processed dataset of 501 documents and some comments provided in the folder "_input_". To run a demo on this dataset with 100 topics, use the command:  
