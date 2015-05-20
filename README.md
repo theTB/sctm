@@ -26,10 +26,19 @@ where
 - _output-dir_ is the location and name of the directory to write output
 - _topics_ is the number of topics (K)
 - _model_ is the model to train, one of: _lda_, _corrlda_, _sctm_
-- _train/test_ (optional), 1 for test data (in this case output-dir should point to location of trained model)
+- _train/test_ (optional), 1 for test data (in this case output-dir should point to location of trained model)  
+
+To print the topics use the python script provided:  
+`python print_topics.py <beta> <vocab> <?topn>`  
+where  
+- _beta_ is the location of the output topic distribution file (named _beta_) from the _sctm_ code  
+- _vocab_ is the vocabulary file consisting of word mapping, each i-th line of this file contains the word i
+- _topn_ (optional) number of top words to print per topic  
 
 There is a sample pre-processed dataset of 501 documents and some comments provided in the folder "_input_". To run a demo on this dataset with 100 topics, use the command:  
-`./sctm ../input/abagf.AT.txt ../input/cbagf.AT.txt ../output 100 sctm`
+`./sctm ../input/abagf.AT.txt ../input/cbagf.AT.txt ../output 100 sctm`  
+Then print the topics using the provided python script:  
+`python print_topics.py output/beta input/words.AT.txt`  
 
 
 #### Input Data Format
