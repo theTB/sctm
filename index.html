@@ -65,7 +65,7 @@ This is the model proposed in the paper for modeling specific correspondence bet
 <h4>
 <a id="using-the-code" class="anchor" href="#using-the-code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using the Code</h4>
 
-<p>Download all the code files and go into the folder called "<em>Release</em>". This contains the Makefile. Compile the code,  <code>make clean; make</code>. The main exectuable is called "<em>sctm</em>".  </p>
+<p>Download all the code files and go into the folder called "<em>Release</em>". This contains the Makefile. Compile the code,  <code>make clean; make</code>. The main executable is called "<em>sctm</em>".  </p>
 
 <p>Usage : <code>./sctm &lt;1.article-file&gt; &lt;2.comments-file&gt; &lt;3.output-dir&gt; &lt;4.topics&gt; &lt;5.model&gt; &lt;6.train/test&gt;</code><br>
 where</p>
@@ -86,8 +86,21 @@ where</p>
 <em>train/test</em> (optional), 1 for test data (in this case output-dir should point to location of trained model)</li>
 </ul>
 
+<p> To print the topics use the python script provided: </br>
+<code>python print_topics.py &lt;beta&gt; &lt;vocab&gt; &lt;?topn&gt; </code> </br>
+where </br>
+<ul>
+<li> <em>beta</em> is the location of the output topic distribution file (named <em>beta</em>) from the <em>sctm</em> code  </li>
+<li> <em>vocab</em> is the vocabulary file consisting of word mapping where i-th line contains the word i </li>
+<li> <em>topn</em> (optional) number of top words to print per topic </li>
+</ul>
+</p>
+
 <p>There is a sample pre-processed dataset of 501 documents and some comments provided in the folder "<em>input</em>". To run a demo on this dataset with 100 topics, use the command:<br>
-<code>./sctm ../input/abagf.AT.txt ../input/cbagf.AT.txt ../output 100 sctm</code></p>
+<code>./sctm ../input/abagf.AT.txt ../input/cbagf.AT.txt ../output 100 sctm</code> </br>
+Then print the topics using the provided python script: </br>
+<code> python print_topics.py output/beta input/words.AT.txt </code>
+</p>
 
 <h4>
 <a id="input-data-format" class="anchor" href="#input-data-format" aria-hidden="true"><span class="octicon octicon-link"></span></a>Input Data Format</h4>
