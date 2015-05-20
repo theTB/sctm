@@ -17,7 +17,7 @@ This implementation contains the following 3 models:
 
 
 #### Using the Code
-Download all the code files and go into the folder called "_Release_". This contains the Makefile. Compile the code,  `make clean; make`. The main exectuable is called "_sctm_".  
+Download all the code files and go into the folder called "_Release_". This contains the Makefile. Compile the code,  `make clean; make`. The main executable is called "_sctm_".  
 
 Usage : `./sctm <1.article-file> <2.comments-file> <3.output-dir> <4.topics> <5.model> <6.train/test>`  
 where
