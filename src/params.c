@@ -28,7 +28,7 @@ sctm_params* get_params(int trte, int topics, char* modelName) {
 	params->b_tau = 1e-2;
 	params->b_iota = 1e-1;
 
-	// z	
+	// theta, beta
 	params->K = topics;
 	params->alpha = 0.01;
 	params->eta = 1;
@@ -67,7 +67,7 @@ sctm_params* get_params(int trte, int topics, char* modelName) {
 		params->model = 2;
 		params->CMNTS = 1;
 		params->sents_sparsity = 1;
-		params->IJ = 0;
+		params->IJ = 0;  // set the number of topic vectors (J) here. 0 means J=number of sentences
 		params->word_sparsity = 1;
 	}
 	else {
