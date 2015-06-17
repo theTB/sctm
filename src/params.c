@@ -7,7 +7,6 @@ sctm_params* get_params(int trte, int topics, char* modelName) {
 
 	params->trte = trte;
 
-	params->word_sparsity = 1;
 	params->sents_sparsity = 1;
 
 	params->ITER = 500;
@@ -53,12 +52,15 @@ sctm_params* get_params(int trte, int topics, char* modelName) {
 		params->model = 0;
 		params->CMNTS = 0;
 		params->IJ = 1;
+		params->word_sparsity = 1;  // set this to 1 for sparse topics (0 for not)
 	}
 	else if (strcmp("corrlda", modelName) == 0) {
 		printf("\nCorrespondence LDA");
 		params->model = 1;
+		params->CMNTS = 1;
 		params->sents_sparsity = 0;
 		params->IJ = 1;
+		params->word_sparsity = 1;
 	}
 	else if (strcmp("sctm", modelName) == 0) {
 		printf("\nSpecific Correspondence Topic Model");
@@ -66,6 +68,7 @@ sctm_params* get_params(int trte, int topics, char* modelName) {
 		params->CMNTS = 1;
 		params->sents_sparsity = 1;
 		params->IJ = 0;
+		params->word_sparsity = 1;
 	}
 	else {
 		printf("\nUnrecognised %s model, Options are: lda, corrlda, sctm\n\n",modelName);

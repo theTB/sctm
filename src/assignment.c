@@ -118,7 +118,7 @@ void assignment(char* odir, sctm_data* data, sctm_params* params,
 				}
 //				fprintf(ft, "\n");
 //				fprintf(fy, "\n");
-				for (k=0; k < params->K+1; k++) {
+				for (k=0; k < params->K+(int)(params->model!=1); k++) {
 					if (state > 0 || iter == params->burn_in) {
 						latent->y_dist[d][c][k] = (state*latent->y_dist[d][c][k] + y_dist[k]/cmnt->N)/(state+1);
 						fprintf(fy_dist, "%.4f ", latent->y_dist[d][c][k]);
@@ -149,7 +149,8 @@ void assignment(char* odir, sctm_data* data, sctm_params* params,
 		sum = 0;
 		double *beta;
 		beta = (double*) malloc(sizeof(double)*data->V);
-		fprintf(fbeta, "%d\n", params->K+1);
+		if (params->model == 2) fprintf(fbeta, "%d\n", params->K+1);
+		else fprintf(fbeta, "%d\n", params->K);
 		for (k = 0; k < params->K; k++) {
 			sum = 0;
 			for (v = 0; v < data->V; v++) {
@@ -166,18 +167,16 @@ void assignment(char* odir, sctm_data* data, sctm_params* params,
 //			fprintf(fphi, "%d\n", sum);
 			fprintf(fbeta,"\n");
 		}
-		if (params->model == 2) {
-			for (v = 0; v < data->V; v++) {
-				beta[v] = (params->eta + counts->n_dij[k][v])*1.0/ (data->V*params->eta + counts->n_dijv[k]);
-				if (state > 0 || iter == params->burn_in) {
-					latent->beta[k][v] = (state*latent->beta[k][v] + beta[v])/(state+1);
-					fprintf(fbeta, "%lf ", latent->beta[k][v]);
-				}
-				else if (iter > params->ITER) fprintf(fbeta, "%lf ", latent->beta[k][v]);
-				else fprintf(fbeta, "%lf ", beta[v]);
+		for (v = 0; v < data->V; v++) {
+			beta[v] = (params->eta + counts->n_dij[k][v])*1.0/ (data->V*params->eta + counts->n_dijv[k]);
+			if (state > 0 || iter == params->burn_in) {
+				latent->beta[k][v] = (state*latent->beta[k][v] + beta[v])/(state+1);
+				fprintf(fbeta, "%lf ", latent->beta[k][v]);
 			}
+			else if (iter > params->ITER) fprintf(fbeta, "%lf ", latent->beta[k][v]);
+			else fprintf(fbeta, "%lf ", beta[v]);
 		}
-		fprintf(fbeta,"\n");
+		//fprintf(fbeta,"\n");
 //		fclose(fphi);
 		fclose(fbeta);
 		free(beta);

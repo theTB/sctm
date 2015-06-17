@@ -9,6 +9,7 @@ def print_topics(beta, vocab, n):
 			print "Topic %3d: "%(k+1),
 		else: print "Irrelevant Topic %d: "%(k+1),
 		print ", ".join(map(lambda x: vocab[x], topn))
+	print "\nNOTE: Ignore 'irrelevant topic' for LDA"
 			
 
 
