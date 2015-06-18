@@ -83,7 +83,7 @@ void assignment(char* odir, sctm_data* data, sctm_params* params,
 //		ft = fopen(fname, "w");
 //		sprintf(fname, "%s/xi.txt", dir);
 //		fxi = fopen(fname, "w");
-//		sprintf(fname, "%s/xi_prob.txt", dir);
+		sprintf(fname, "%s/xi_prob.txt", dir);
 		fxi_prob = fopen(fname, "w");
 //		sprintf(fname, "%s/y.txt", dir);
 //		fy = fopen(fname, "w");
