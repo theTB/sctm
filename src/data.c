@@ -81,32 +81,50 @@ sctm_data* read_data(char* art_fname, char* cmnt_fname, sctm_params* params) {
 	return (data);
 }
 
-void load_beta(char* odir, sctm_data* data, sctm_params* params, sctm_latent* latent) {
+void load_beta(char* odir,  sctm_data* data, sctm_params* params, sctm_latent* latent) {
 
 	char fname[500];
-	int k, v, K;
-	double b;
+	int k, v, V, K;
+	double b, beta_sum;
+	double eps = 1e-6; // for words with 0 probability in all documents
 
-	if(params->trte==1){
-		sprintf(fname,"%s/beta",odir);
-		FILE *f = fopen(fname,"r");
-		if(!fscanf(f,"%d",&K)) debug("error reading beta");
-		latent->beta = (double**) malloc(sizeof(double*)*K);
-		for(k=0; k < K; k++){
-			latent->beta[k] = (double*) malloc(sizeof(double)*data->V);
-			for(v=0; v<data->V; v++){
-				if(!fscanf(f,"%lf ",&b)) debug("error reading beta");
-				if(isnan(b)){
-					printf("%d, %d", k, v); debug("beta nan");
-				}
-				latent->beta[k][v] = b;
+	sprintf(fname,"%s/beta",odir);
+	FILE *f = fopen(fname,"r");
+	if(!fscanf(f, "%d %d", &K, &V)) debug("error reading beta");
+	if (params->model == 0) params->K = K;
+	else params->K = K - 1;
+	data->V = V;
+	double* beta_norm = (double*) malloc(sizeof(double)*K);
+	latent->beta = (double**) malloc(sizeof(double*)*K);
+	for (k = 0; k < K; k++) {
+		latent->beta[k] = (double*) malloc(sizeof(double)*data->V);
+		beta_norm[k] = 0;
+		for(v=0; v < V; v++){
+			if(!fscanf(f,"%lf ",&b)) debug("error reading beta");
+			if(isnan(b)){
+				printf("%d, %d", k, v); debug("beta nan");
+			}
+			latent->beta[k][v] = b;
+			beta_norm[k] += b;
+		}
+	}
+	fclose(f);
+	//for (k=0; k < params->K; k++) printf("k:%d norm:%lf\n",k,beta_norm[k]);
+	//debug("chk");
+	for (v = 0; v < V; v++) {
+		beta_sum = 0;
+		for(k=0; k < params->K; k++) beta_sum += latent->beta[k][v];
+		if (beta_sum < 1e-6) {
+			for(k=0; k < params->K; k++) {
+				latent->beta[k][v] += eps;
+				beta_norm[k] += eps;
 			}
 		}
-		fclose(f);
 	}
-	else{
-		latent->beta = NULL;
-	}
+	
+	for (k = 0; k < K; k++) for (v=0; v < V; v++) latent->beta[k][v] /= beta_norm[k];
+	free(beta_norm);
+	
 }
 
 void free_data(sctm_data* data) {

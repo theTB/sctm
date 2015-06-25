@@ -19,7 +19,7 @@ if __name__ == '__main__':
 		sys.exit()
 		
 	with open(sys.argv[1].strip(),'r') as bf:
-		K = int(bf.readline())
+		K, V = map(int, bf.readline().split())
 		beta = []
 		for t in bf:
 			beta.append(map(lambda x: float(x.strip()), t.strip().split(' ')))

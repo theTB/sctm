@@ -10,8 +10,8 @@ void assignment(char* odir, sctm_data* data, sctm_params* params,
 	char dir[1000];
 
 	FILE *fbeta=NULL, *fz_dist;
-	//FILE *fz, *fb , *fphi;
-	//FILE *fm, *fm_k, *fm_1, *fm_1k;
+//	FILE *fz, *fb , *fphi;
+//	FILE *fm, *fm_k, *fm_1, *fm_1k;
 
 	sprintf(dir, "%s", odir);
 
@@ -32,7 +32,8 @@ void assignment(char* odir, sctm_data* data, sctm_params* params,
 
 //	sprintf(fname, "%s/z.txt", dir);
 //	fz = fopen(fname, "w");
-	sprintf(fname, "%s/z_dist.txt", dir);
+	if (params->trte == 0) sprintf(fname, "%s/z_dist.txt", dir);
+	else sprintf(fname, "%s/z_dist_test.txt", dir);
 	fz_dist = fopen(fname, "w");
 	
 	double* z_dist = (double*) malloc(sizeof(double)*params->K);
@@ -76,18 +77,20 @@ void assignment(char* odir, sctm_data* data, sctm_params* params,
 	fclose(fz_dist);
 	free(z_dist);
 
-	//FILE *ft = NULL, *fxi = NULL, *fy = NULL;
+//	FILE *ft = NULL, *fxi = NULL, *fy = NULL;
 	FILE *fxi_prob = NULL, *fy_dist = NULL;
 	if (params->CMNTS) {
 //		sprintf(fname, "%s/t.txt", dir);
 //		ft = fopen(fname, "w");
 //		sprintf(fname, "%s/xi.txt", dir);
 //		fxi = fopen(fname, "w");
-		sprintf(fname, "%s/xi_prob.txt", dir);
+		if (params->trte == 0) sprintf(fname, "%s/xi_prob.txt", dir);
+		else sprintf(fname, "%s/xi_prob_test.txt", dir);
 		fxi_prob = fopen(fname, "w");
 //		sprintf(fname, "%s/y.txt", dir);
 //		fy = fopen(fname, "w");
-		sprintf(fname, "%s/y_dist.txt", dir);
+		if (params->trte == 0) sprintf(fname, "%s/y_dist.txt", dir);
+		else sprintf(fname, "%s/y_dist_test.txt", dir);
 		fy_dist = fopen(fname, "w");
 
 		double* y_dist = (double*) malloc(sizeof(double)*(params->K+1));
@@ -149,8 +152,8 @@ void assignment(char* odir, sctm_data* data, sctm_params* params,
 		sum = 0;
 		double *beta;
 		beta = (double*) malloc(sizeof(double)*data->V);
-		if (params->model == 2) fprintf(fbeta, "%d\n", params->K+1);
-		else fprintf(fbeta, "%d\n", params->K);
+		if (params->model != 0) fprintf(fbeta, "%d %d\n", params->K+1, data->V);
+		else fprintf(fbeta, "%d %d\n", params->K, data->V);
 		for (k = 0; k < params->K; k++) {
 			sum = 0;
 			for (v = 0; v < data->V; v++) {
@@ -185,28 +188,27 @@ void assignment(char* odir, sctm_data* data, sctm_params* params,
 }
 
 
+/*
 double compute_perplexity(char* odir, sctm_data* cdata, sctm_params* params, sctm_latent* latent, sctm_counts* counts) {
-	double likelihood = compute_likelihood(cdata, params, latent, counts);
-	double perp = exp(-(likelihood));
+	double likelihood_art, likelihood_cmnt, perp;
+	int DxN_art, DxN_cmnt;
+	compute_likelihood(cdata, params, latent, counts, &likelihood_art, &DxN_art);
+	compute_likelihood_cmnt(cdata, params, latent, counts, &likelihood_cmnt, &DxN_cmnt);
+	//double perp = exp(-(likelihood));
 
 	char fname[500];
-	FILE *fla, *flc;
-	sprintf(fname, "%s/loglike_perp_art.txt", odir);
-	fla = fopen(fname, "a");
-	sprintf(fname, "%s/loglike_perp_cmnt.txt", odir);
-	flc = fopen(fname, "a");
-	fprintf(fla, "loglikelihood:%.4f perplexity:%.4f\n",likelihood, perp);
-	fclose(fla);
-
-	likelihood = compute_likelihood_cmnt(cdata, params, latent, counts);
-	perp = exp(-(likelihood));
-	fprintf(flc, "loglikelihood:%.4f perplexity:%.4f\n",likelihood, perp);
-	fclose(flc);
+	FILE *fl;
+	sprintf(fname, "%s/perplexity.txt", odir);
+	fl = fopen(fname, "a");
+	
+	perp = exp(-(likelihood_art+likelihood_cmnt)/(DxN_art+DxN_cmnt));
+	fprintf(fl, "perplexity: %.2f\n", perp);
+	fclose(fl);
 
 	return(perp);
 }
 
-double compute_likelihood(sctm_data* cdata, sctm_params* params, sctm_latent* latent, sctm_counts* counts) {
+double compute_likelihood(sctm_data* cdata, sctm_params* params, sctm_latent* latent, sctm_counts* counts, double* result, int* tokens) {
 	int d, i, j, k, v, n;//, t, l;
 	double likelihood = 0;
 	double beta,like, theta, eps;
@@ -236,18 +238,21 @@ double compute_likelihood(sctm_data* cdata, sctm_params* params, sctm_latent* la
 				}
 				if (like < eps) {
 					printf("like:%lf\n",like);
-					debug("like too small");
+					//debug("like too small");
 				}
 				likelihood += log(like + eps);
 				DxN += 1;
 			}
 		}
 	}
+	
+	*result = likelihood;
+	*tokens = DxN;
 
 	return(likelihood/DxN);
 }
 
-double compute_likelihood_cmnt(sctm_data* cdata, sctm_params* params, sctm_latent* latent, sctm_counts* counts) {
+double compute_likelihood_cmnt(sctm_data* cdata, sctm_params* params, sctm_latent* latent, sctm_counts* counts, double* result, int* tokens) {
 	int d, i, t, k, v, n;//, t, l;
 	double likelihood = 0;
 	double beta,like, eps;
@@ -259,7 +264,7 @@ double compute_likelihood_cmnt(sctm_data* cdata, sctm_params* params, sctm_laten
 		documents* doc = &(cdata->docs[d]);
 		for (i=0; i < doc->C; i++) {
 			comment* cmnt = &(doc->cmnts[i]);
-			for (n=0; n < cmnt->N; n++){
+			for (n=0; n < cmnt->N; n++) {
 				like = 0;
 				k = latent->y[d][i][n];
 				v = cmnt->words[n];
@@ -282,7 +287,9 @@ double compute_likelihood_cmnt(sctm_data* cdata, sctm_params* params, sctm_laten
 			}
 		}
 	}
+	*result = likelihood;
+	*tokens = DxN;
 
 	return(likelihood/DxN);
 }
-
+*/

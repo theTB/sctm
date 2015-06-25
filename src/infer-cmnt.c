@@ -23,7 +23,7 @@ void infer_y(sctm_data* data, sctm_params* params, sctm_latent* latent,
 				for (k = 0; k < params->K; k++) {
 					p = 1.;
 					if (params->trte == 1 && t == 1) p = latent->beta[k][v];
-					else if (t == 1) {
+					else if (t == 1) {						
 						p = (double) (latent->phi[k][v] * params->eta + counts->n_dij[k][v]) /
 							(counts->phiEta_v[k] + counts->n_dijv[k]);
 					}
@@ -37,8 +37,7 @@ void infer_y(sctm_data* data, sctm_params* params, sctm_latent* latent,
 								latent->phi[k][v], params->eta,
 								counts->n_dij[k][v], counts->phiEta_v[k],
 								counts->n_dijv[k]);
-						fflush(stdout);
-						debug("in infer-cmnt 1");
+						debug("error in infer-cmnt 1");
 					}
 
 					P[k] = 0;
@@ -47,32 +46,31 @@ void infer_y(sctm_data* data, sctm_params* params, sctm_latent* latent,
 					else
 						P[k] = P[k - 1] + p;
 					if (isnan(P[k])) {
-						printf("k:%d, p:%f t:%d m:%d m_k:%d\n", k, p,t,counts->m[d][i][k],counts->m_k[d][i]);
-						fflush(stdout);
-						debug("in infer-y");
+						printf("k:%d v:%d p:%f t:%d m:%d m_k:%d beta:%lf\n", k, v, p,t,counts->m[d][i][k],counts->m_k[d][i], latent->beta[k][v]);
+						debug("error in infer-y");
 					}
 
 				}
 
 				r = myrand();
-				if (P[params->K - 1] == 0 || r == 0) {
+				if (P[params->K - 1] < 1e-15 || r == 0) {
 					printf("d:%d i:%d n:%d, P[K]:%lf\n", d,i,n,P[params->K-1]);
-					for (k=0; k < params->K; k++) printf("m[d][i][%d]:%d\n",k, counts->m[d][i][k]);
-					printf("m_k[d][i]:%d\n",counts->m_k[d][i]);
-					fflush(stdout);
-					debug("chk");
+					//for (k=0; k < params->K; k++) printf("m[d][i][%d]:%d\n",k, counts->m[d][i][k]);
+					//printf("m_k[d][i]:%d\n",counts->m_k[d][i]);
+					//fflush(stdout);
+					debug("error in infer-y: all probs zero");
 				}
 				r *= P[params->K - 1];
 				for (k = 0; k < params->K; k++) {
 					if (r <= P[k])
 						break;
 				}
-				if (k >= params->K) {
-					printf("\nK:%d, r:%f, P[K-1]:%f, p:%f", k, r,
-							P[params->K - 1], p);
-					fflush(stdout);
-					debug("in infer-cmt");
-				}
+				//if (k >= params->K) {
+				//	printf("\nK:%d, r:%f, P[K-1]:%f, p:%f", k, r,
+				//			P[params->K - 1], p);
+				//	fflush(stdout);
+				//	debug("in infer-cmt");
+				//}
 
 				latent->y[d][i][n] = k;
 				if (t==1) {

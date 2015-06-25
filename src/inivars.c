@@ -1,16 +1,14 @@
 #include "inivars.h"
 
 void ini_vars(sctm_data* data, sctm_params* params, sctm_latent* latent,
-		sctm_counts* counts, int trte) {
+		sctm_counts* counts) {
 
-	if (params->model == 4) return;
+	if (params->trte == 0) ini_phi(data, params, latent, counts);
 
-	ini_phi(data, params, latent, counts);
-
-	ini_b_z(data, params, latent, counts, trte);
+	ini_b_z(data, params, latent, counts);
 
 	if (params->CMNTS)
-		ini_y_xi_t(data, params, latent, counts, trte);
+		ini_y_xi_t(data, params, latent, counts);
 
 }
 
@@ -40,7 +38,7 @@ void ini_phi(sctm_data* data, sctm_params* params, sctm_latent* latent,
 }
 
 void ini_b_z(sctm_data* data, sctm_params* params, sctm_latent* latent,
-		sctm_counts* counts, int trte) {
+		sctm_counts* counts) {
 	int d, i, n, v, j, k, l;
 	double p, r, *P, p11, p12, p21, p22;
 	int sum;
@@ -70,8 +68,14 @@ void ini_b_z(sctm_data* data, sctm_params* params, sctm_latent* latent,
 				counts->n_kv[d][i][j]++;
 
 				for (k = 0; k < params->K; k++) {
-					p11 = latent->phi[k][v] * params->eta + counts->n_dij[k][v];
-					p21 = counts->phiEta_v[k] + counts->n_dijv[k];
+					if (params->trte == 0) {
+						p11 = latent->phi[k][v] * params->eta + counts->n_dij[k][v];
+						p21 = counts->phiEta_v[k] + counts->n_dijv[k];
+					}
+					else {
+						p11 = latent->beta[k][v];
+						p21 = 1.0;
+					}
 
 					p12 = params->alpha
 							+ counts->n_iv[d][j][k];
@@ -148,7 +152,7 @@ void ini_b_z(sctm_data* data, sctm_params* params, sctm_latent* latent,
 }
 
 void ini_y_xi_t(sctm_data* data, sctm_params* params, sctm_latent* latent,
-		sctm_counts* counts, int trte) {
+		sctm_counts* counts) {
 	int d, i, a, n, k, v, sum_xi;
 	double r, p1, p2, p;
 
@@ -185,10 +189,18 @@ void ini_y_xi_t(sctm_data* data, sctm_params* params, sctm_latent* latent,
 				p1 = 1;
 				p2 = 1;
 				for (k = 0; k < params->K; k++) {
-					p1 = (double) (latent->phi[k][v] * params->eta
-							+ counts->n_dij[k][v]); ////
-					p2 = counts->phiEta_v[k] + counts->n_dijv[k]; ////
-					p = p1 / p2;
+					if (params->trte == 0) {
+						p1 = (double) (latent->phi[k][v] * params->eta
+								+ counts->n_dij[k][v]); ////
+						p2 = counts->phiEta_v[k] + counts->n_dijv[k]; ////
+						p = p1 / p2;
+					}
+					else { // will set t=0 for all if test
+						//p = latent->beta[k][v];
+						//beta_sum += p;
+						p = 1;
+					}
+					
 					p1 = (double) counts->m[d][i][k];
 					p2 = (double) counts->m_k[d][i];
 					if (p2 != 0)
@@ -204,6 +216,10 @@ void ini_y_xi_t(sctm_data* data, sctm_params* params, sctm_latent* latent,
 						P[k] = p;
 					else
 						P[k] = P[k - 1] + p;
+					if (isnan(P[k])) {
+						printf("d:%d c:%d C:%d n:%d k:%d m:%d m_1:%d m_k:%d p:%lf beta:%lf p1:%lf p2:%lf P[k]:%lf\n",
+										d,i,doc->C,n,k,counts->m[d][i][k],counts->m_1[d][i][k], counts->m_k[d][i], p, latent->beta[k][v], p1, p2, P[k]);
+					}
 				}
 
 				r = myrand();
@@ -212,8 +228,19 @@ void ini_y_xi_t(sctm_data* data, sctm_params* params, sctm_latent* latent,
 					if (r <= P[k])
 						break;
 				}
+				if (P[params->K - 1] < 1e-15) {
+					//if (params->trte == 1) {
+					//	k = floor(myrand()*params->K);
+					//}
+					//else {
+						printf("d:%d i:%d n:%d K:%d, P[K-1]:%lf\n", d, i, n, params->K, P[params->K-1]);
+						for (k=0; k < params->K+1; k++) printf("k:%d v:%d beta:%lf\n",k,v,latent->beta[k][v]);
+						debug("in z: probs all zero");
+					//}
+				}
 				latent->y[d][i][n] = k;
-				if (myrand() < params->eps) {
+				
+				if (params->trte == 1 || myrand() < params->eps) {
 					latent->t[d][i][n] = 0;
 					k = params->K;
 				} else {
@@ -224,6 +251,12 @@ void ini_y_xi_t(sctm_data* data, sctm_params* params, sctm_latent* latent,
 
 				counts->n_dij[k][v]++;
 				counts->n_dijv[k]++;
+				
+				if (isnan(P[k])) {
+						printf("final k:%d t:%d m:%d m_1:%d m_k:%d p:%lf P[k]:%lf r:%lf\n",
+										latent->y[d][i][n],latent->t[d][i][n],counts->m[d][i][k],counts->m_1[d][i][k], counts->m_k[d][i], p, P[k], r);
+						//debug("chk");
+				}
 
 
 			} // n

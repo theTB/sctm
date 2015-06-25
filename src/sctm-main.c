@@ -9,20 +9,21 @@ void gibbs(char* artf, char* cmntf, char* odir, int trte, int topics, char* mode
 
 	sctm_data* data = read_data(artf, cmntf, params);
 
-	printf("\nDocuments:%d Comments:%d Vocabulary:%d\n",data->D, data->C, data->V);
-	fflush(stdout);
-
 	sctm_counts* counts = NULL;
 	counts = (sctm_counts*) malloc(sizeof(sctm_counts));
 
 	sctm_latent* latent = (sctm_latent*) malloc(sizeof(sctm_latent));
-	allocate_vars(data, params, latent, counts);
-
-	ini_vars(data, params, latent, counts, trte);
-
-	if (params->trte==1) {
+	
+	if (trte==1) {
 		load_beta(odir, data, params, latent);
 	}
+	
+	printf("\nDocuments:%d Comments:%d Vocabulary:%d\n",data->D, data->C, data->V);
+	fflush(stdout);
+	
+	allocate_vars(data, params, latent, counts);
+
+	ini_vars(data, params, latent, counts);
 
 	assignment(odir, data, params, latent, counts, -1);
 

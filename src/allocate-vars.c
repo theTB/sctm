@@ -112,8 +112,8 @@ void allocate_vars(sctm_data* data, sctm_params* params,
 			latent->b[d][i] = (int*) malloc(sizeof(int) * sent->N);
 			latent->z_dist[d][i] = (double*) malloc(sizeof(double) * params->K);
 			for (n = 0; n < sent->N; n++) {
-				latent->z[d][i][n] = -1;
-				latent->b[d][i][n] = -1;
+				latent->z[d][i][n] = 0;
+				latent->b[d][i][n] = 0;
 			}
 			for (k=0; k < params->K; k++) latent->z_dist[d][i][k] = 0;
 		}
@@ -130,13 +130,13 @@ void allocate_vars(sctm_data* data, sctm_params* params,
 			latent->y[d][c] = (int*) malloc(sizeof(int) * cmnt->N);
 			latent->t[d][c] = (int*) malloc(sizeof(int) * cmnt->N);
 			for (n = 0; n < cmnt->N; n++) {
-				latent->y[d][c][n] = -1;
-				latent->t[d][c][n] = -1;
+				latent->y[d][c][n] = 0;
+				latent->t[d][c][n] = 0;
 			}
 			latent->xi[d][c] = (int*) malloc(sizeof(int) * doc->S);
 			latent->xi_prob[d][c] = (double*) malloc(sizeof(double) * doc->S);
 			for (i = 0; i < doc->S; i++) {
-				latent->xi[d][c][i] = -1;
+				latent->xi[d][c][i] = 0;
 				latent->xi_prob[d][c][i] = 0;
 			}
 			latent->y_dist[d][c] = (double*) malloc(sizeof(double) * (params->K+1));
@@ -146,15 +146,16 @@ void allocate_vars(sctm_data* data, sctm_params* params,
 	}
 
 
-
-	latent->phi = (int**) malloc(sizeof(int*)*(K+1));
-	latent->beta = (double**) malloc(sizeof(double*)*(K+1));
-	for (k=0; k < K+1; k++) {
-		latent->phi[k] = (int*) malloc(sizeof(int)* V);
-		latent->beta[k] = (double*) malloc(sizeof(double)* V);
-		for (v=0; v < V; v++) {
-			latent->phi[k][v] = 0;
-			latent->beta[k][v] = 0;
+	if (params->trte == 0) {
+		latent->phi = (int**) malloc(sizeof(int*)*(K+1));
+		latent->beta = (double**) malloc(sizeof(double*)*(K+1));
+		for (k=0; k < K+1; k++) {
+			latent->phi[k] = (int*) malloc(sizeof(int)* V);
+			latent->beta[k] = (double*) malloc(sizeof(double)* V);
+			for (v=0; v < V; v++) {
+				latent->phi[k][v] = 0;
+				latent->beta[k][v] = 0;
+			}
 		}
 	}
 
@@ -173,11 +174,11 @@ void free_vars(sctm_data* data, sctm_params* params, sctm_latent* latent,
 
 	for (k = 0; k < params->K+1; k++) {
 		free(counts->n_dij[k]);
-		free(latent->phi[k]);
+		if (params->trte == 0) free(latent->phi[k]);
 		free(latent->beta[k]);
 	}
 	free(counts->n_dij);
-	free(latent->phi);
+	if (params->trte == 0) free(latent->phi);
 	free(latent->beta);
 
 	free(counts->n_dijv);

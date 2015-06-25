@@ -13,6 +13,6 @@
 #include <float.h>
 
 void infer_z(sctm_data* data, sctm_params* params, sctm_latent* latent,
-		sctm_counts* counts, int iter);
+		sctm_counts* counts, int iter, char* odir);
 
 #endif

@@ -19,7 +19,8 @@ double compute_perplexity(char* odir, sctm_data* cdata, sctm_params* params,
 		sctm_latent* latent, sctm_counts* counts);
 
 double compute_likelihood(sctm_data* cdata, sctm_params* params,
-		sctm_latent* latent, sctm_counts* counts);
+		sctm_latent* latent, sctm_counts* counts, double* result, int* tokens);
 
-double compute_likelihood_cmnt(sctm_data* cdata, sctm_params* params, sctm_latent* latent, sctm_counts* counts);
+double compute_likelihood_cmnt(sctm_data* cdata, sctm_params* params,
+		sctm_latent* latent, sctm_counts* counts, double* result, int* tokens);
 #endif

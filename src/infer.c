@@ -5,14 +5,14 @@ void infer (char* odir, sctm_data* data, sctm_params* params,
 	int iter;
 	for (iter = 1; iter < params->ITER+1; iter++) {
 
-		if (params->word_sparsity > 0)
+		if (params->word_sparsity > 0 && params->trte == 0)
 			infer_phi(data, params, latent, counts);
 
 		if (params->model == 2) {
 			infer_b(data, params, latent, counts);
 		}
 
-		infer_z(data, params, latent, counts, iter);
+		infer_z(data, params, latent, counts, iter, odir);
 		//assignment(odir, data, params, latent, counts, iter);
 
 		if (params->CMNTS) {
@@ -29,13 +29,15 @@ void infer (char* odir, sctm_data* data, sctm_params* params,
 			printf("\n%4d of %d iterations done", iter, params->ITER);
 			assignment(odir, data, params, latent, counts, iter);
 			fflush(stdout);
+//			if (params->trte == 1)
+//				compute_perplexity(odir, data, params, latent, counts);
 		}
 
 	}
 
 	assignment(odir, data, params, latent, counts, iter);
-	if (params->trte == 1)
-		compute_perplexity(odir, data, params, latent, counts);
+//	if (params->trte == 1)
+//		compute_perplexity(odir, data, params, latent, counts);
 
 
 }
