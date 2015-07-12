@@ -121,7 +121,7 @@ void assignment(char* odir, sctm_data* data, sctm_params* params,
 				}
 //				fprintf(ft, "\n");
 //				fprintf(fy, "\n");
-				for (k=0; k < params->K+(int)(params->model!=1); k++) {
+				for (k=0; k < params->K+(int)(params->model!=0); k++) {
 					if (state > 0 || iter == params->burn_in) {
 						latent->y_dist[d][c][k] = (state*latent->y_dist[d][c][k] + y_dist[k]/cmnt->N)/(state+1);
 						fprintf(fy_dist, "%.4f ", latent->y_dist[d][c][k]);
